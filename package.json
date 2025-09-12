@@ -1,0 +1,22 @@
+{
+  "name": "contacts-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Johnmunina8161/contacts-api.git"
+  },
+  "author": "John Munina",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Johnmunina8161/contacts-api/issues"
+  },
+  "homepage": "https://github.com/Johnmunina8161/contacts-api#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
