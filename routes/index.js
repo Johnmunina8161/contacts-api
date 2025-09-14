@@ -1,8 +1,10 @@
 const router = require('express').Router();
+const contactsController = require('../controllers/contacts');
 
-// Test route if needed
-// router.get('/', (req, res) => { res.send('Hello World'); });
+// Root route → show all contacts
+router.get('/', contactsController.getAll);
 
+// Contacts route
 router.use('/contacts', require('./contacts'));
 
 module.exports = router;
