@@ -9,13 +9,15 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// basic middleware
+// --- Middleware ---
 app.use(express.json());
 
-// Mount API routes
+// --- Routes ---
 app.use('/api/contacts', require('./routes/contacts'));
 
 // --- Swagger setup ---
+const serverUrl = process.env.RENDER_EXTERNAL_URL || process.env.SWAGGER_SERVER_URL || `http://localhost:${port}`;
+
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -24,37 +26,31 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'API for storing and retrieving contacts',
     },
-    servers: [
-      { url: process.env.SWAGGER_SERVER_URL || `http://localhost:${port}` }
-    ]
+    servers: [{ url: serverUrl }]
   },
-  apis: ['./routes/*.js'] // use JSDoc in routes for paths (we also register explicit spec below)
+  apis: ['./routes/*.js'] // JSDoc comments in routes generate docs
 };
 
-// If you want to generate docs from code comments use swaggerJsdoc(swaggerOptions).
-// We'll also create a small manual spec to ensure examples are present.
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-// Mount swagger UI at /api-docs
+// Mount Swagger UI at /api-docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Root
+// Root route
 app.get('/', (req, res) => {
   res.send('Contacts API is running. Visit /api-docs for API documentation.');
 });
 
-// Start server after DB init
+// --- Start server after DB init ---
 mongodb.initDb((err) => {
   if (err) {
     console.error('Failed to initialize database.', err);
     process.exit(1);
   } else {
     app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
+      console.log(`✅ Connected to MongoDB`);
+      console.log(`🚀 Server running on port ${port}`);
+      console.log(`📖 Swagger docs available at ${serverUrl}/api-docs`);
     });
   }
 });
-
-
-
-
