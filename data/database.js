@@ -1,3 +1,4 @@
+// data/database.js
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -11,13 +12,18 @@ const initDb = (callback) => {
     return callback(null, database);
   }
 
+  if (!process.env.MONGODB_URL) {
+    return callback(new Error('Missing MONGODB_URL environment variable'));
+  }
+
   MongoClient.connect(process.env.MONGODB_URL)
     .then((client) => {
-      database = client.db(); // <-- store the actual database, not the client
-      console.log('MongoDB connected!');
+      database = client.db(); // store the database object
+      console.log('Connected to MongoDB');
       callback(null, database);
     })
     .catch((err) => {
+      console.error('MongoDB connection error', err);
       callback(err);
     });
 };
@@ -33,3 +39,4 @@ module.exports = {
   initDb,
   getDatabase
 };
+
