@@ -4,10 +4,19 @@ const db = require('./data/database');
 const contactsRoutes = require('./routes/contacts');
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
+
+// Routes
+app.use('/contacts', contactsRoutes);
+
+// Root route → redirect to contacts
+app.get('/', (req, res) => {
+  res.redirect('/contacts');
+});
 
 // Initialize DB and start server
 db.initDb((err) => {
@@ -21,10 +30,3 @@ db.initDb((err) => {
   });
 });
 
-// Routes
-app.use('/contacts', contactsRoutes);
-
-// Health check
-app.get('/', (req, res) => {
-  res.send('Contacts API is running');
-});
