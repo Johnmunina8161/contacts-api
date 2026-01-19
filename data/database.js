@@ -1,28 +1,44 @@
-const dotenv = require('dotenv');
-dotenv.config();
-
+// data/database.js
 const { MongoClient } = require('mongodb');
 
-let database;
+let database; // Singleton for the database connection
 
-const initDb = (callback) => {
-  if (database) return callback(null, database);
+/**
+ * Initialize MongoDB connection
+ * Call this once before starting your server
+ */
+const initDb = async () => {
+  if (database) return database; // Return existing connection if already initialized
 
-  MongoClient.connect(process.env.MONGODB_URL)
-    .then((client) => {
-      database = client.db('contactsDB'); // ✅ fixed database
-      console.log('Connected to MongoDB');
-      callback(null, database);
-    })
-    .catch((err) => {
-      console.error('MongoDB connection error', err);
-      callback(err);
+  if (!process.env.MONGODB_URI) {
+    throw new Error('MONGODB_URI not defined in .env file');
+  }
+
+  try {
+    const client = await MongoClient.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
+    database = client.db(); // Use default database from URI
+    console.log('✅ Connected to MongoDB');
+    return database;
+  } catch (err) {
+    console.error('❌ Failed to connect to MongoDB', err);
+    throw err;
+  }
 };
 
-const getDatabase = () => {
-  if (!database) throw Error('Database not initialized');
+/**
+ * Get the MongoDB database instance
+ * Make sure initDb() has been called first
+ */
+const getDb = () => {
+  if (!database) {
+    throw new Error(
+      'Database not initialized. Call initDb() before calling getDb().'
+    );
+  }
   return database;
 };
 
-module.exports = { initDb, getDatabase };
+module.exports = { initDb, getDb };

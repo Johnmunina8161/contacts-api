@@ -1,32 +1,40 @@
 const express = require('express');
 const cors = require('cors');
+const dotenv = require('dotenv');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
 const db = require('./data/database');
 const contactsRoutes = require('./routes/contacts');
+
+dotenv.config();
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 3000;
-
 // Routes
 app.use('/contacts', contactsRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Root route → redirect to contacts
+// Root route
 app.get('/', (req, res) => {
-  res.redirect('/contacts');
+  res.redirect('/api-docs');
 });
 
-// Initialize DB and start server
-db.initDb((err) => {
-  if (err) {
-    console.error('Failed to connect to database');
+const PORT = process.env.PORT || 3000;
+
+// ✅ START SERVER (ASYNC – CORRECT)
+const startServer = async () => {
+  try {
+    await db.initDb(); // IMPORTANT
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('❌ Server failed to start:', err);
     process.exit(1);
   }
+};
 
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-});
-
+startServer();
